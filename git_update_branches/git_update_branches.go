@@ -78,7 +78,7 @@ func getFullBranchName(shortName string, branches []string) (string, error) {
 			removedAsterisk := strings.TrimPrefix(trimmedSpaces, "*")
 			removedRemotes := strings.TrimPrefix(removedAsterisk, "remotes/")
 
-			return removedRemotes, nil
+			return strings.TrimSpace(removedRemotes), nil
 		}
 	}
 

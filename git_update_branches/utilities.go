@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 )
 
 func displayHeader(number int, title string) {
@@ -16,11 +17,12 @@ func displayDescription(description string) {
 	fmt.Printf("---- %s", description)
 }
 
-func displayError(err error) {
+func displayError(err error, description ...string) {
 	fmt.Println()
 	fmt.Println("=======================================")
 	log.Fatalln(`
 ERROR: ` + err.Error() + `
+Description: ` + strings.Join(description, " ") + `
 =======================================
 	`)
 }
