@@ -24,11 +24,16 @@ func main() {
 		displayError(err)
 	}
 
+	fmt.Println("-- 4. updating branches to latest change")
+	for _, branchName := range branchNames {
+		pullBranch(branchName)
+	}
+
 	fmt.Println(branchNames)
 }
 
 func gitFetch() {
-	fmt.Println("-- fetching branches")
+	fmt.Println("-- 1. fetching branches")
 	cmd := exec.Command("git", "fetch", "--all")
 	_, err := cmd.Output()
 	if err != nil {
@@ -53,7 +58,7 @@ func getArgs() ([]string, error) {
 
 func getBranchNames(args []string) ([]string, error) {
 	// Get all branches
-	fmt.Println("-- getting all branch names")
+	fmt.Println("-- 2. getting all branch names")
 	cmd := exec.Command("git", "branch", "-a")
 	output, err := cmd.Output()
 	if err != nil {
@@ -61,7 +66,7 @@ func getBranchNames(args []string) ([]string, error) {
 	}
 
 	// Get the full branch names of the args
-	fmt.Println("-- getting branch names of args:", args)
+	fmt.Println("-- 3. getting branch names of args:", args)
 
 	fullBranchNames := []string{}
 	branches := strings.Split(string(output), "\n")
@@ -91,6 +96,21 @@ func getFullBranchName(shortName string, branches []string) (string, error) {
 	}
 
 	return "", errors.New("branch (" + shortName + ") not found")
+}
+
+func pullBranch(branchName string) {
+	fmt.Println("---- pulling branch:", branchName)
+
+	branchToSwithTo := strings.TrimPrefix(branchName, "origin/")
+	_, switchErr := exec.Command("git", "switch", branchToSwithTo).Output()
+	if switchErr != nil {
+		displayError(switchErr)
+	}
+
+	_, pullErr := exec.Command("git", "pull", "--ff-only").Output()
+	if pullErr != nil {
+		displayError(pullErr)
+	}
 }
 
 func displayError(err error) {
