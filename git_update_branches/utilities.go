@@ -7,9 +7,7 @@ import (
 )
 
 func displayHeader(number int, title string) {
-	fmt.Println()
-	fmt.Printf("-- %d. %s", number, title)
-	fmt.Println()
+	fmt.Printf("\n-- %d. %s", number, title)
 }
 
 func displayDescription(description string) {
