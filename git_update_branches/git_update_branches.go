@@ -17,14 +17,16 @@ func main() {
 		displayError(err)
 	}
 
+	fmt.Println("-- 1. fetching branches")
 	gitFetch()
 
+	fmt.Println("-- 2. converting args to full branch names")
 	branchNames, err := getBranchNames(args)
 	if err != nil {
 		displayError(err)
 	}
 
-	fmt.Println("-- 4. updating branches to latest change")
+	fmt.Println("-- 3. updating branches to latest change")
 	for _, branchName := range branchNames {
 		pullBranch(branchName)
 	}
@@ -33,7 +35,6 @@ func main() {
 }
 
 func gitFetch() {
-	fmt.Println("-- 1. fetching branches")
 	cmd := exec.Command("git", "fetch", "--all")
 	_, err := cmd.Output()
 	if err != nil {
@@ -57,22 +58,21 @@ func getArgs() ([]string, error) {
 }
 
 func getBranchNames(args []string) ([]string, error) {
+	fmt.Println("---- git branch -a")
 	// Get all branches
-	fmt.Println("-- 2. getting all branch names")
 	cmd := exec.Command("git", "branch", "-a")
 	output, err := cmd.Output()
 	if err != nil {
-		return []string{}, errors.New("git branch command failed")
+		return []string{}, errors.New("'git branch -a' command failed")
 	}
 
 	// Get the full branch names of the args
-	fmt.Println("-- 3. getting branch names of args:", args)
-
 	fullBranchNames := []string{}
 	branches := strings.Split(string(output), "\n")
 	// Reverse the branches so we look for the remote branches first
 	slices.Reverse(branches)
 
+	fmt.Println("---- mapping args to full branch names")
 	for _, arg := range args {
 		fullBranchName, err := getFullBranchName(arg, branches)
 		if err != nil {
@@ -99,10 +99,9 @@ func getFullBranchName(shortName string, branches []string) (string, error) {
 }
 
 func pullBranch(branchName string) {
-	fmt.Println("---- pulling branch:", branchName)
-
-	branchToSwithTo := strings.TrimPrefix(branchName, "origin/")
-	_, switchErr := exec.Command("git", "switch", branchToSwithTo).Output()
+	branchToUpdate := strings.TrimPrefix(branchName, "origin/")
+	fmt.Println("---- pulling branch:", branchToUpdate)
+	_, switchErr := exec.Command("git", "switch", branchToUpdate).Output()
 	if switchErr != nil {
 		displayError(switchErr)
 	}
