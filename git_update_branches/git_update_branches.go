@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -51,18 +52,22 @@ func getArgs() ([]string, error) {
 }
 
 func getBranchNames(args []string) ([]string, error) {
-	fmt.Println("-- getting remote branch names")
-	cmd := exec.Command("git", "branch", "-r")
+	// Get all branches
+	fmt.Println("-- getting all branch names")
+	cmd := exec.Command("git", "branch", "-a")
 	output, err := cmd.Output()
-
 	if err != nil {
 		return []string{}, errors.New("git branch command failed")
 	}
 
-	branches := strings.Split(string(output), "\n")
+	// Get the full branch names of the args
 	fmt.Println("-- getting branch names of args:", args)
 
 	fullBranchNames := []string{}
+	branches := strings.Split(string(output), "\n")
+	// Reverse the branches so we look for the remote branches first
+	slices.Reverse(branches)
+
 	for _, arg := range args {
 		fullBranchName, err := getFullBranchName(arg, branches)
 		if err != nil {
@@ -77,7 +82,11 @@ func getBranchNames(args []string) ([]string, error) {
 func getFullBranchName(shortName string, branches []string) (string, error) {
 	for _, branch := range branches {
 		if strings.Contains(branch, shortName) {
-			return strings.TrimSpace(strings.TrimPrefix(branch, "*")), nil
+			trimmedSpaces := strings.TrimSpace(branch)
+			removedAsterisk := strings.TrimPrefix(trimmedSpaces, "*")
+			removedRemotes := strings.TrimPrefix(removedAsterisk, "remotes/")
+
+			return removedRemotes, nil
 		}
 	}
 
