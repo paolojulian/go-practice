@@ -31,7 +31,10 @@ func main() {
 		pullBranch(branchName)
 	}
 
-	fmt.Println(branchNames)
+	fmt.Println("-- 4. merge dependent branches")
+	mergeDependentBranches(branchNames)
+
+	fmt.Println("-- 5. Done")
 }
 
 func gitFetch() {
@@ -101,14 +104,50 @@ func getFullBranchName(shortName string, branches []string) (string, error) {
 func pullBranch(branchName string) {
 	branchToUpdate := strings.TrimPrefix(branchName, "origin/")
 	fmt.Println("---- pulling branch:", branchToUpdate)
-	_, switchErr := exec.Command("git", "switch", branchToUpdate).Output()
-	if switchErr != nil {
-		displayError(switchErr)
-	}
+	gitSwitchTo(branchToUpdate)
+	gitPullFastForward()
+}
 
-	_, pullErr := exec.Command("git", "pull", "--ff-only").Output()
-	if pullErr != nil {
-		displayError(pullErr)
+func mergeDependentBranches(branchNames []string) {
+	currentBranch := branchNames[0]
+	for index, branchName := range branchNames {
+		// We skip the first branch since it's the base branch
+		if index == 0 {
+			continue
+		}
+		fmt.Println("---- merging branch:", currentBranch, "-->", branchName)
+		gitSwitchTo(branchName)
+		gitMerge(currentBranch)
+		gitPush()
+		currentBranch = branchName
+	}
+}
+
+func gitSwitchTo(branchName string) {
+	_, err := exec.Command("git", "switch", branchName).Output()
+	if err != nil {
+		displayError(err)
+	}
+}
+
+func gitMerge(branchName string) {
+	_, err := exec.Command("git", "merge", branchName).Output()
+	if err != nil {
+		displayError(err)
+	}
+}
+
+func gitPullFastForward() {
+	_, err := exec.Command("git", "pull", "--ff-only").Output()
+	if err != nil {
+		displayError(err)
+	}
+}
+
+func gitPush() {
+	_, err := exec.Command("git", "push").Output()
+	if err != nil {
+		displayError(err)
 	}
 }
 
