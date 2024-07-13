@@ -2,12 +2,8 @@ package main
 
 import (
 	"errors"
-	"fmt"
-	"log"
 	"os"
-	"os/exec"
 	"regexp"
-	"slices"
 	"strings"
 )
 
@@ -17,32 +13,24 @@ func main() {
 		displayError(err)
 	}
 
-	fmt.Println("-- 1. fetching branches")
+	displayHeader(1, "Fetching branches")
 	gitFetch()
 
-	fmt.Println("-- 2. converting args to full branch names")
+	displayHeader(2, "Convert args to full branch names")
 	branchNames, err := getBranchNames(args)
 	if err != nil {
 		displayError(err)
 	}
 
-	fmt.Println("-- 3. updating branches to latest change")
+	displayHeader(3, "Updating branches to latest change")
 	for _, branchName := range branchNames {
 		pullBranch(branchName)
 	}
 
-	fmt.Println("-- 4. merge dependent branches")
+	displayHeader(4, "Merge dependent branches")
 	mergeDependentBranches(branchNames)
 
-	fmt.Println("-- 5. Done")
-}
-
-func gitFetch() {
-	cmd := exec.Command("git", "fetch", "--all")
-	_, err := cmd.Output()
-	if err != nil {
-		displayError(err)
-	}
+	displayHeader(5, "Finished")
 }
 
 func getArgs() ([]string, error) {
@@ -61,21 +49,13 @@ func getArgs() ([]string, error) {
 }
 
 func getBranchNames(args []string) ([]string, error) {
-	fmt.Println("---- git branch -a")
-	// Get all branches
-	cmd := exec.Command("git", "branch", "-a")
-	output, err := cmd.Output()
-	if err != nil {
-		return []string{}, errors.New("'git branch -a' command failed")
-	}
+	displayDescription("Getting all branch names (git branch -a)")
 
-	// Get the full branch names of the args
+	branches := gitGetAllBranches()
+
 	fullBranchNames := []string{}
-	branches := strings.Split(string(output), "\n")
-	// Reverse the branches so we look for the remote branches first
-	slices.Reverse(branches)
 
-	fmt.Println("---- mapping args to full branch names")
+	displayDescription("Mapping args to full branch names")
 	for _, arg := range args {
 		fullBranchName, err := getFullBranchName(arg, branches)
 		if err != nil {
@@ -103,7 +83,7 @@ func getFullBranchName(shortName string, branches []string) (string, error) {
 
 func pullBranch(branchName string) {
 	branchToUpdate := strings.TrimPrefix(branchName, "origin/")
-	fmt.Println("---- pulling branch:", branchToUpdate)
+	displayDescription("Pulling branch: " + branchToUpdate)
 	gitSwitchTo(branchToUpdate)
 	gitPullFastForward()
 }
@@ -115,47 +95,10 @@ func mergeDependentBranches(branchNames []string) {
 		if index == 0 {
 			continue
 		}
-		fmt.Println("---- merging branch:", currentBranch, "-->", branchName)
+		displayDescription("Merging branch: " + currentBranch + " --> " + branchName)
 		gitSwitchTo(branchName)
 		gitMerge(currentBranch)
 		gitPush()
 		currentBranch = branchName
 	}
-}
-
-func gitSwitchTo(branchName string) {
-	branchToSwitchTo := strings.TrimPrefix(branchName, "origin/")
-	_, err := exec.Command("git", "switch", branchToSwitchTo).Output()
-	if err != nil {
-		displayError(err)
-	}
-}
-
-func gitMerge(branchName string) {
-	_, err := exec.Command("git", "merge", branchName).Output()
-	if err != nil {
-		displayError(err)
-	}
-}
-
-func gitPullFastForward() {
-	_, err := exec.Command("git", "pull", "--ff-only").Output()
-	if err != nil {
-		displayError(err)
-	}
-}
-
-func gitPush() {
-	_, err := exec.Command("git", "push").Output()
-	if err != nil {
-		displayError(err)
-	}
-}
-
-func displayError(err error) {
-	log.Fatal(`
-=======================================
-ERROR: ` + err.Error() + `
-=======================================
-	`)
 }
