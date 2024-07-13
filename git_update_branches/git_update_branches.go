@@ -78,7 +78,7 @@ func getFullBranchName(shortName string, branches []string) (string, error) {
 		}
 	}
 
-	return "", errors.New("branch (" + shortName + ") not found")
+	return "", errors.New("No branch name matches: " + shortName)
 }
 
 func pullBranch(branchName string) {

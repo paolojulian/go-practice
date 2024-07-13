@@ -18,8 +18,8 @@ func displayDescription(description string) {
 
 func displayError(err error) {
 	fmt.Println()
+	fmt.Println("=======================================")
 	log.Fatalln(`
-=======================================
 ERROR: ` + err.Error() + `
 =======================================
 	`)
