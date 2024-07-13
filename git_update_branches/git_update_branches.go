@@ -124,7 +124,8 @@ func mergeDependentBranches(branchNames []string) {
 }
 
 func gitSwitchTo(branchName string) {
-	_, err := exec.Command("git", "switch", branchName).Output()
+	branchToSwitchTo := strings.TrimPrefix(branchName, "origin/")
+	_, err := exec.Command("git", "switch", branchToSwitchTo).Output()
 	if err != nil {
 		displayError(err)
 	}
