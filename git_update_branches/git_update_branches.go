@@ -42,10 +42,10 @@ func getArgs() ([]string, error) {
 	args := argsWithoutProp[0]
 	doesMatchFormat := regexp.MustCompile(`^([\w\d-]+)(\/[\w\d-]+)+$`).MatchString(args)
 	if !doesMatchFormat {
-		return []string{}, errors.New("invalid arg format, should be like 'master/developer/feature/feature-1'")
+		return []string{}, errors.New("invalid arg format, should be like 'master>developer>feature>feature-1'")
 	}
 
-	return strings.Split(args, "/"), nil
+	return strings.Split(args, getArgSplitter()), nil
 }
 
 func getBranchNames(args []string) ([]string, error) {
@@ -101,4 +101,8 @@ func mergeDependentBranches(branchNames []string) {
 		gitPush()
 		currentBranch = branchName
 	}
+}
+
+func getArgSplitter() string {
+	return ">"
 }
