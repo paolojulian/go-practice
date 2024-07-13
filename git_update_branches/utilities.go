@@ -6,7 +6,7 @@ import (
 )
 
 func displayHeader(number int, title string) {
-	fmt.Printf("-- %s. %s", string(number), title)
+	fmt.Printf("-- %d. %s", number, title)
 }
 
 func displayDescription(description string) {
