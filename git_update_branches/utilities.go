@@ -16,7 +16,7 @@ func displayDescription(description string) {
 }
 
 func displayError(err error) {
-	log.Fatal(`
+	log.Fatalln(`
 =======================================
 ERROR: ` + err.Error() + `
 =======================================
