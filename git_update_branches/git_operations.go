@@ -6,69 +6,90 @@ import (
 	"strings"
 )
 
-func gitFetch() {
-	cmd := exec.Command("git", "fetch", "--all")
-	_, err := cmd.Output()
-	if err != nil {
-		fmt.Println()
-		fmt.Println(cmd)
-		displayError(err, "Unable to fetch all branches")
-	}
+type GitOperations interface {
+	Fetch() error
+	Switch(branchName string) error
+	Merge(branchName string) error
+	GetBranchNames() ([]string, error)
+	Pull() error
+	Push() error
 }
 
-func gitSwitchTo(branchName string) {
+type GitOps struct {
+}
+
+func NewGitOps() *GitOps {
+	return &GitOps{}
+}
+
+func (g *GitOps) Fetch() error {
+	cmd := exec.Command("git", "fetch", "--all")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return displayGitError("failed to fetch all branches", cmd, output)
+	}
+
+	return nil
+}
+
+func (g *GitOps) Switch(branchName string) error {
 	// Ensure that the branch is a local branch
 	branchToSwitchTo := strings.TrimPrefix(branchName, "origin/")
 
 	cmd := exec.Command("git", "switch", branchToSwitchTo)
-	_, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println()
-		fmt.Println(cmd)
-		displayError(err, "Unable to switch to branch:", branchToSwitchTo)
+		return displayGitError("failed to switch to branch", cmd, output)
 	}
+
+	return nil
 }
 
-func gitGetAllBranches() []string {
-	cmd := exec.Command("git", "branch", "-a")
-	output, err := cmd.Output()
+func (g *GitOps) Merge(branchName string) error {
+	cmd := exec.Command("git", "merge", branchName)
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println()
-		fmt.Println(cmd)
-		displayError(err, "Unable to get all branches")
+		return displayGitError("failed to merge branch:"+branchName, cmd, output)
+	}
+
+	return nil
+}
+
+func (g *GitOps) GetBranchNames() ([]string, error) {
+	cmd := exec.Command("git", "branch", "-a")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return []string{}, displayGitError("failed to get all branches", cmd, output)
 	}
 
 	branches := strings.Split(string(output), "\n")
 
-	return branches
+	return branches, nil
 }
 
-func gitMerge(branchName string) {
-	cmd := exec.Command("git", "merge", branchName)
-	_, err := cmd.Output()
-	if err != nil {
-		fmt.Println()
-		fmt.Println(cmd)
-		displayError(err, "Unable to merge branch:", branchName)
-	}
-}
-
-func gitPullFastForward() {
+func (g *GitOps) Pull() error {
 	cmd := exec.Command("git", "pull", "--ff-only")
-	_, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println()
-		fmt.Println(cmd)
-		displayError(err, "Unable to pull fast-forward")
+		return displayGitError("failed to pull fast-forward", cmd, output)
 	}
+
+	return nil
 }
 
-func gitPush() {
+func (g *GitOps) Push() error {
 	cmd := exec.Command("git", "push")
-	_, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println()
-		fmt.Println(cmd)
-		displayError(err, "Unable to push")
+		return displayGitError("failed to push", cmd, output)
 	}
+
+	return nil
+}
+
+func displayGitError(title string, cmd *exec.Cmd, output []byte) error {
+	fmt.Println("\n******* ERROR:", title)
+	fmt.Println("Command:", cmd)
+
+	return fmt.Errorf(string(output))
 }
