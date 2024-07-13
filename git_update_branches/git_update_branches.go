@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+const ARG_SPLITTER string = "/"
+
 func main() {
 	args, err := getArgs()
 	if err != nil {
@@ -45,7 +47,7 @@ func getArgs() ([]string, error) {
 		return []string{}, errors.New("invalid arg format, should be like 'master>developer>feature>feature-1'")
 	}
 
-	return strings.Split(args, getArgSplitter()), nil
+	return strings.Split(args, ARG_SPLITTER), nil
 }
 
 func getBranchNames(args []string) ([]string, error) {
@@ -101,8 +103,4 @@ func mergeDependentBranches(branchNames []string) {
 		gitPush()
 		currentBranch = branchName
 	}
-}
-
-func getArgSplitter() string {
-	return "/"
 }
