@@ -10,6 +10,8 @@ func gitFetch() {
 	cmd := exec.Command("git", "fetch", "--all")
 	_, err := cmd.Output()
 	if err != nil {
+		fmt.Println()
+		fmt.Println(cmd)
 		displayError(err, "Unable to fetch all branches")
 	}
 }
@@ -21,6 +23,8 @@ func gitSwitchTo(branchName string) {
 	cmd := exec.Command("git", "switch", branchToSwitchTo)
 	_, err := cmd.Output()
 	if err != nil {
+		fmt.Println()
+		fmt.Println(cmd)
 		displayError(err, "Unable to switch to branch:", branchToSwitchTo)
 	}
 }
@@ -29,6 +33,8 @@ func gitGetAllBranches() []string {
 	cmd := exec.Command("git", "branch", "-a")
 	output, err := cmd.Output()
 	if err != nil {
+		fmt.Println()
+		fmt.Println(cmd)
 		displayError(err, "Unable to get all branches")
 	}
 
@@ -38,23 +44,31 @@ func gitGetAllBranches() []string {
 }
 
 func gitMerge(branchName string) {
-	_, err := exec.Command("git", "merge", branchName).Output()
+	cmd := exec.Command("git", "merge", branchName)
+	_, err := cmd.Output()
 	if err != nil {
+		fmt.Println()
+		fmt.Println(cmd)
 		displayError(err, "Unable to merge branch:", branchName)
 	}
 }
 
 func gitPullFastForward() {
-	output, err := exec.Command("git", "pull", "--ff-only").Output()
-	fmt.Println(string(output))
+	cmd := exec.Command("git", "pull", "--ff-only")
+	_, err := cmd.Output()
 	if err != nil {
+		fmt.Println()
+		fmt.Println(cmd)
 		displayError(err, "Unable to pull fast-forward")
 	}
 }
 
 func gitPush() {
-	_, err := exec.Command("git", "push").Output()
+	cmd := exec.Command("git", "push")
+	_, err := cmd.Output()
 	if err != nil {
+		fmt.Println()
+		fmt.Println(cmd)
 		displayError(err, "Unable to push")
 	}
 }
