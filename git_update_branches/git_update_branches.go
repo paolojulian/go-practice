@@ -24,6 +24,8 @@ func main() {
 		displayError(err)
 	}
 
+	validateBranches(branchNames)
+
 	displayHeader(3, "Updating branches to latest change")
 	for _, branchName := range branchNames {
 		pullBranch(branchName)
