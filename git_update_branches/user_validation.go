@@ -31,5 +31,5 @@ func validateBranches(branchNames []string) {
 		os.Exit(0)
 	}
 
-	displayDescription("Continuing...")
+	fmt.Println("Continuing...")
 }

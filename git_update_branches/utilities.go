@@ -6,18 +6,29 @@ import (
 	"strings"
 )
 
-func displayHeader(number int, title string) {
+type Logger interface {
+	Header(number int, title string)
+	Description(description string)
+	Error(err error, description ...string)
+}
+
+type LoggerImpl struct {
+}
+
+func NewLogger() *LoggerImpl {
+	return &LoggerImpl{}
+}
+
+func (l *LoggerImpl) Header(number int, title string) {
 	fmt.Printf("\n-- %d. %s", number, title)
 }
 
-func displayDescription(description string) {
-	fmt.Println()
-	fmt.Printf("---- %s", description)
+func (l *LoggerImpl) Description(description string) {
+	fmt.Printf("\n---- %s", description)
 }
 
-func displayError(err error, description ...string) {
-	fmt.Println()
-	fmt.Println("=======================================")
+func (l *LoggerImpl) Error(err error, description ...string) {
+	fmt.Println("\n=======================================")
 	log.Fatalln(`
 ERROR: ` + err.Error() + `
 Description: ` + strings.Join(description, " ") + `
