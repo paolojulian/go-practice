@@ -6,8 +6,6 @@ import (
 	"strings"
 )
 
-type Writer int
-
 func validateBranches(branchNames []string) {
 	fmt.Println()
 	fmt.Println()
