@@ -40,7 +40,7 @@ func getArgs() ([]string, error) {
 	}
 
 	args := argsWithoutProp[0]
-	doesMatchFormat := regexp.MustCompile(`^([\w\d-]+)(\/[\w\d-]+)+$`).MatchString(args)
+	doesMatchFormat := regexp.MustCompile(`^([\w\d-]+)>([\w\d-]+)$`).MatchString(args)
 	if !doesMatchFormat {
 		return []string{}, errors.New("invalid arg format, should be like 'master>developer>feature>feature-1'")
 	}
